@@ -170,18 +170,9 @@ function draw(){
     if(mouse.presses()) console.log(mouse.x,mouse.y);
 }
 
-function save_game(){
-    
-    game_data.power=player.power;
-    game_data.jewel=player.jewel;
-    game_data.orb=player.orb;
-    game_data.ore_level=ore_level;
-    game_data.max_ore_hp=max_ore_hp;
-    //game_data.now_ore_hp=now_ore_hp;
-    game_data.hp_increase_rate=hp_increase_rate;
 
-    localStorage.setItem('game_data',JSON.stringify(game_data));
-}
+
+// start 関連の関数  ====================================================================================//
 
 function load_game(){
     let saved_data=localStorage.getItem('game_data');
@@ -218,6 +209,10 @@ function draw_start(){
 
 }
 
+//==================================================================================================================//
+
+
+// game 関連の関数   ================================================================================================//
 function init_game(){
     
     game_flag=true;
@@ -262,12 +257,12 @@ function draw_game(){
     if(destroy_flag==true) {
         next_ore_level();
 
-        update_jewel();
+        get_jewel();
         draw_jewel();
         
         if(ore_level%20==0)
         {
-            update_orb();
+            get_orb();
             draw_orb();
         }
     }
@@ -297,6 +292,19 @@ function draw_game(){
     text('第'+ore_level+'の鉱石',400,110);
     textAlign(CORNER);
 
+}
+
+function save_game(){
+    
+    game_data.power=player.power;
+    game_data.jewel=player.jewel;
+    game_data.orb=player.orb;
+    game_data.ore_level=ore_level;
+    game_data.max_ore_hp=max_ore_hp;
+    //game_data.now_ore_hp=now_ore_hp;
+    game_data.hp_increase_rate=hp_increase_rate;
+
+    localStorage.setItem('game_data',JSON.stringify(game_data));
 }
 
 function update_ore_hp(){
@@ -349,7 +357,7 @@ function next_ore_level(){
     hp_red=490;
 }
 
-function update_jewel(){
+function get_jewel(){
     player.jewel++;
 }
 
@@ -363,7 +371,7 @@ function draw_jewel(){
     item.vel.y=-6
 }
 
-function update_orb(){
+function get_orb(){
     player.orb++;
 }
 
@@ -404,6 +412,11 @@ function draw_status_bar(){
 
 }
 
+//=====================================================================================================================//
+
+
+
+// menu 関連の関数  =============================================================================================//
 function init_menu(){
     menu_flag=true;
 
@@ -426,8 +439,12 @@ function draw_menu(){
 
     image(menu_page,50,50,700,500);
 
+    draw_status_bar();
+
     if(cross_btn.mouse.presses()){
         now_scene=scene.game;
         finalize_memu();
     }
 }
+
+//======================================================================================================================//
