@@ -1,14 +1,41 @@
 let hangyaku_font;
 
+let player={
+    power:1,
+    jewel:0,
+    orb:0
+}
+
+let scene={
+    start:0,
+    game:1,
+    menu:2
+}
+let now_scene;
+
+let game_data={
+    power:1,
+    plus_power:0,
+    jewel:0,
+    orb:0,
+    max_ore_hp:10,
+    ore_level:1,
+    now_destroy_num:0,
+    hp_increase_rate:10,
+    plus_power_up_price:6,
+    player_power_up_price:2
+}
+
+
 let start_flag=false;
 let start_btn;
-let pickaxe;
 let start_bg_img;
 let game_bg_img;
 let menu_bg_img;
 let back;
 
 let game_flag=false;
+let pickaxe;
 let status_bar;
 let ore;
 let jewel_img;
@@ -24,40 +51,34 @@ let hp_red_color;
 let hp_green;
 let hp_red=490;
 let ore_level=1;
+let now_destroy_num=1;
 let hp_increase_rate=10;
 let destroy_flag=false;
+let damege;
+let item;
+let total_power;
 
 let menu_flag=false;
 let menu_btn;
 let cross_btn;
 let cross_btn_img;
 let menu_page;
-
-let player={
-    power:1,
-    jewel:0,
-    orb:0
+let plus_powerup_btn;
+let player_powerup_btn;
+let reset_btn;
+let plus_power=0;
+let skill_price={
+    plus_power_up_price:6,
+    player_power_up_price:2
 }
 
-let damege;
-let item;
 
-let scene={
-    start:0,
-    game:1,
-    menu:2
-}
-let now_scene;
 
-let game_data={
-    power:1,
-    jewel:0,
-    orb:0,
-    max_ore_hp:10,
-    //now_ore_hp:10,
-    ore_level:1,
-    hp_increase_rate:10
-}
+
+
+
+
+
 
 
 function preload(){
@@ -129,6 +150,25 @@ function setup(){
     cross_btn.y=90;
     cross_btn.collider='n';
     cross_btn.visible=false;
+
+    plus_powerup_btn=new Sprite();
+    plus_powerup_btn.x=180;
+    plus_powerup_btn.y=280;
+    plus_powerup_btn.collider='n';
+    plus_powerup_btn.visible=false;
+
+    player_powerup_btn=new Sprite();
+    player_powerup_btn.x=180;
+    player_powerup_btn.y=360;
+    player_powerup_btn.collider='n';
+    player_powerup_btn.visible=false;
+
+    reset_btn=new Sprite();
+    reset_btn.x=180;
+    reset_btn.y=440;
+    reset_btn.collider='n';
+    reset_btn.visible=false;
+
     
 //menuの設定
 
@@ -184,9 +224,15 @@ function load_game(){
         player.jewel=game_data.jewel;
         player.orb=game_data.orb;
         ore_level=game_data.ore_level;
+        now_destroy_num=game_data.now_destroy_num;
         max_ore_hp=game_data.max_ore_hp;
         now_ore_hp=max_ore_hp;
         hp_increase_rate=game_data.hp_increase_rate;
+        skill_price.plus_power_up_price=game_data.plus_power_up_price;
+        plus_power=game_data.plus_power;
+        skill_price.player_power_up_price=game_data.player_power_up_price;
+
+        total_power=player.power+plus_power;
 
     }
 }
@@ -232,8 +278,6 @@ function finalize_game(){
 
     ore.visible=false;
     pickaxe.visible=false;
-    jewel.visible=false;
-    orb.visible=false;
     menu_btn.visible=false;
     ore.collider='n';
     menu_btn.collider='n';
@@ -300,19 +344,25 @@ function save_game(){
     game_data.jewel=player.jewel;
     game_data.orb=player.orb;
     game_data.ore_level=ore_level;
+    game_data.now_destroy_num=now_destroy_num;
     game_data.max_ore_hp=max_ore_hp;
-    //game_data.now_ore_hp=now_ore_hp;
     game_data.hp_increase_rate=hp_increase_rate;
+    game_data.plus_power_up_price=skill_price.plus_power_up_price;
+    game_data.plus_power=plus_power;
+    game_data.player_power_up_price=skill_price.player_power_up_price;
 
     localStorage.setItem('game_data',JSON.stringify(game_data));
 }
 
 function update_ore_hp(){
 
+    //ダメージの計算
+    total_power=player.power+plus_power;
+
     //鉱石のhpが0より大きい場合
-    if(now_ore_hp-player.power>0){
-        now_ore_hp=now_ore_hp-player.power; //鉱石のhpを減らす
-    }else if(now_ore_hp-player.power<=0){   //鉱石のhpが0以下になる場合
+    if(now_ore_hp-total_power>0){
+        now_ore_hp=now_ore_hp-total_power; //鉱石のhpを減らす
+    }else if(now_ore_hp-total_power<=0){   //鉱石のhpが0以下になる場合
         now_ore_hp=0; //鉱石のhpを0にして破壊のフラグをtrueにする
         destroy_flag=true;
     }
@@ -352,6 +402,7 @@ function draw_ore_hp(){
 function next_ore_level(){
     destroy_flag=false;
     ore_level++;
+    now_destroy_num++;
     max_ore_hp=max_ore_hp+(int)(ore_level*(hp_increase_rate/100));
     now_ore_hp=max_ore_hp;
     hp_red=490;
@@ -390,7 +441,7 @@ function draw_pickaxe_damege()
     damege=new Sprite(mouse.x+20,mouse.y-20);
     damege.color=color(0,0,0,0);
     damege.stroke=color(0,0,0,0);
-    damege.text=player.power;
+    damege.text=total_power;
     damege.textColor='white'
     damege.textSize=50;
     damege.collider='n';
@@ -423,6 +474,15 @@ function init_menu(){
     cross_btn.collider='s';
     cross_btn.visible=true;
 
+    plus_powerup_btn.collider='s';
+    plus_powerup_btn.visible=true;
+
+    player_powerup_btn.collider='s';
+    player_powerup_btn.visible=true;
+
+    reset_btn.collider='s';
+    reset_btn.visible=true;
+
 }
 
 function finalize_memu(){
@@ -430,6 +490,15 @@ function finalize_memu(){
 
     cross_btn.collider='n';
     cross_btn.visible=false;
+
+    plus_powerup_btn.collider='n';
+    plus_powerup_btn.visible=false;
+
+    player_powerup_btn.collider='n';
+    player_powerup_btn.visible=false;
+
+    reset_btn.collider='n';
+    reset_btn.visible=false;
 
 }
 
@@ -441,9 +510,85 @@ function draw_menu(){
 
     draw_status_bar();
 
+    //採掘力の表示
+    textAlign(CENTER,CENTER);
+    text('基礎採掘力:',200,115);
+    textAlign(LEFT,CENTER);
+    text(player.power,290,115);
+
+    textAlign(CENTER,CENTER);
+    text('合計採掘力:',200,175);
+    textAlign(LEFT,CENTER);
+    text(player.power+plus_power,290,175);
+
     if(cross_btn.mouse.presses()){
         now_scene=scene.game;
         finalize_memu();
+    }
+
+    if(plus_powerup_btn.mouse.presses())
+    {
+        plus_power_up();
+    }
+
+    if(player_powerup_btn.mouse.presses())
+    {
+        player_power_up();
+    }
+
+    if(reset_btn.mouse.presses())
+    {
+        reset_game();
+    }
+}
+
+//jewel消費によるplus_powerの上昇
+function plus_power_up()
+{
+    if(player.jewel-skill_price.plus_power_up_price>=0)
+    {
+        //jewelがパワーアップに必要なjewel数以上であればjewelを消費してパワーアップする
+        player.jewel-=skill_price.plus_power_up_price;
+        plus_power++;
+
+        if (plus_power%5==0) {
+            //採掘力が5上がるごとに消費するjewelが4つずつ増える
+            skill_price.plus_power_up_price+=4;
+        }
+
+    }     
+}
+
+//orb消費によるplayer.powerの上昇
+function player_power_up()
+{
+    if(player.orb-skill_price.player_power_up_price>=0)
+    {
+        //orbがパワーアップに必要なorb数以上であればorbを消費してパワーアップする
+        player.orb-=skill_price.player_power_up_price;
+        player.power+=2;
+
+        if(player.power%5==0)
+        {
+            //基礎採掘力が5上がるごとに消費するorbが1つ増える
+            skill_price.player_power_up_price++;
+        }
+    }
+}
+
+function reset_game(){
+    if(now_destroy_num>=100)
+    {
+        player.orb=player.orb+Math.floor(ore_level/10);
+        
+        now_destroy_num=1;
+        ore_level=1;
+        player.jewel=0;
+        plus_power=0;
+        max_ore_hp=10;
+        now_ore_hp=max_ore_hp;
+        skill_price.plus_power_up_price=6;
+        
     }
 }
 
