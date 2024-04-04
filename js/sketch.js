@@ -62,6 +62,7 @@ let menu_flag=false;
 let menu_btn;
 let cross_btn;
 let cross_btn_img;
+let title_btn;
 let menu_page;
 let plus_powerup_btn;
 let player_powerup_btn;
@@ -71,7 +72,6 @@ let skill_price={
     plus_power_up_price:6,
     player_power_up_price:2
 }
-
 
 
 
@@ -98,6 +98,12 @@ function setup(){
 
     textFont(hangyaku_font);
 
+//startの設定
+    start_btn=new Sprite();
+    start_btn.collider='n';
+    start_btn.visible=false;
+    start_btn.w=150;
+//startの設定
 
 //gameの設定
     ore=new Sprite();
@@ -112,7 +118,8 @@ function setup(){
     menu_btn.collider='n';
     menu_btn.x=100;
     menu_btn.y=450;
-    menu_btn.text='menu';
+    menu_btn.w=100;
+    menu_btn.text='MENU';
     menu_btn.visible=false;
 
     jewel=new Sprite();
@@ -152,23 +159,32 @@ function setup(){
     cross_btn.visible=false;
 
     plus_powerup_btn=new Sprite();
-    plus_powerup_btn.x=180;
+    plus_powerup_btn.x=200;
     plus_powerup_btn.y=280;
+    plus_powerup_btn.w=180;
     plus_powerup_btn.collider='n';
     plus_powerup_btn.visible=false;
 
     player_powerup_btn=new Sprite();
-    player_powerup_btn.x=180;
+    player_powerup_btn.x=200;
     player_powerup_btn.y=360;
+    player_powerup_btn.w=180;
     player_powerup_btn.collider='n';
     player_powerup_btn.visible=false;
 
     reset_btn=new Sprite();
-    reset_btn.x=180;
+    reset_btn.x=200;
     reset_btn.y=440;
+    reset_btn.w=120;
     reset_btn.collider='n';
     reset_btn.visible=false;
 
+    title_btn=new Sprite();
+    title_btn.x=600;
+    title_btn.y=450;
+    title_btn.w=120;
+    title_btn.collider='n';
+    title_btn.visible=false;
     
 //menuの設定
 
@@ -242,17 +258,43 @@ function draw_start(){
 
     if(start_flag==false)
     {
-        start_btn=new Sprite();
-        start_flag=true;
+        init_start();
     }
 
     if(start_btn.mouse.released())
     {
         now_scene=scene.game;
         load_game();
-        start_btn.remove();
+        finalize_start();
     }
 
+    if(start_btn.mouse.hovering())
+    {
+        start_btn.textColor='yellow';
+    }else{
+        start_btn.textColor='white';
+    }
+
+}
+
+function init_start(){
+    start_flag=true;
+
+    start_btn.collider='s';
+    start_btn.visible=true;
+    start_btn.text="スタート!";
+    start_btn.color=color(0,0,0,0);
+    start_btn.stroke=color(0,0,0,0);
+    start_btn.textColor='white';
+    start_btn.textSize=60;
+
+}
+
+function finalize_start(){
+    start_flag=false;
+    
+    start_btn.collider='n';
+    start_btn.visible=false;
 }
 
 //==================================================================================================================//
@@ -271,6 +313,11 @@ function init_game(){
     ore.collider='s';
     menu_btn.collider='s';
 
+    menu_btn.textSize=50;
+    menu_btn.textColor='white';
+    menu_btn.color=color(0,0,0,0);
+    menu_btn.stroke=color(0,0,0,0);
+
 }
 
 function finalize_game(){
@@ -279,6 +326,8 @@ function finalize_game(){
     ore.visible=false;
     pickaxe.visible=false;
     menu_btn.visible=false;
+    jewel.visible=false;
+    orb.visible=false;
     ore.collider='n';
     menu_btn.collider='n';
 }
@@ -317,6 +366,11 @@ function draw_game(){
     {
         now_scene=scene.menu;
         finalize_game();
+    }
+    if(menu_btn.mouse.hovering()){
+        menu_btn.textColor='yellow';
+    }else{
+        menu_btn.textColor='white';
     }
 
 
@@ -471,22 +525,48 @@ function draw_status_bar(){
 function init_menu(){
     menu_flag=true;
 
+    orb.visible=true;
+
+    jewel.visible=true;
+
     cross_btn.collider='s';
     cross_btn.visible=true;
 
     plus_powerup_btn.collider='s';
     plus_powerup_btn.visible=true;
+    plus_powerup_btn.text="ドーピングUP";
+    plus_powerup_btn.textSize=50;
+    plus_powerup_btn.color=color(0,0,0,0);
+    plus_powerup_btn.stroke=color(0,0,0,0);
 
     player_powerup_btn.collider='s';
     player_powerup_btn.visible=true;
+    player_powerup_btn.text="基礎採掘力UP";
+    player_powerup_btn.textSize=50;
+    player_powerup_btn.color=color(0,0,0,0);
+    player_powerup_btn.stroke=color(0,0,0,0);
 
     reset_btn.collider='s';
     reset_btn.visible=true;
+    reset_btn.text="リセット";
+    reset_btn.textSize=50;
+    reset_btn.color=color(0,0,0,0);
+    reset_btn.stroke=color(0,0,0,0);
 
+    title_btn.collider='s';
+    title_btn.visible=true;
+    title_btn.text="タイトルへ";
+    title_btn.textSize=50;
+    title_btn.color=color(0,0,0,0);
+    title_btn.stroke=color(0,0,0,0);
 }
 
 function finalize_memu(){
     menu_flag=false;
+
+    jewel.visible=false;
+
+    orb.visible=false;
 
     cross_btn.collider='n';
     cross_btn.visible=false;
@@ -499,6 +579,10 @@ function finalize_memu(){
 
     reset_btn.collider='n';
     reset_btn.visible=false;
+
+    title_btn.collider='n';
+    title_btn.visible=false;
+
 
 }
 
@@ -530,15 +614,46 @@ function draw_menu(){
     {
         plus_power_up();
     }
+    if(plus_powerup_btn.mouse.hovering())
+    {
+        plus_powerup_btn.textColor='grey';
+    }else{
+        plus_powerup_btn.textColor='black';
+    }
 
     if(player_powerup_btn.mouse.presses())
     {
         player_power_up();
     }
+    if(player_powerup_btn.mouse.hovering())
+    {
+        player_powerup_btn.textColor='grey';
+    }else{
+        player_powerup_btn.textColor='black';
+    }
 
     if(reset_btn.mouse.presses())
     {
         reset_game();
+    }
+    if(reset_btn.mouse.hovering())
+    {
+        reset_btn.textColor='grey';
+    }else{
+        reset_btn.textColor='black';
+    }
+
+    if(title_btn.mouse.presses())
+    {
+        save_game();
+        finalize_memu();
+        now_scene=scene.start;
+    }
+    if(title_btn.mouse.hovering())
+    {
+        title_btn.textColor='grey';
+    }else{
+        title_btn.textColor='black';
     }
 }
 
